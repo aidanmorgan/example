@@ -2,14 +2,17 @@ agents:
   queue: "default"
 
 steps:
-  - label: "build_app"
-    command: "go build -o dist/hello ."
+  - command: "go build -o dist/hello ."
+    key: "build_app"
     artifact_paths: "./dist/hello"
     plugins:
       - docker:
           image: "golang:1.18.0"
   - block: "Continue?"
-  - command: "buildkite-agent artifact download dist/hello hello/hello --step build_app; chmod +x hello/hello; hello/hello $$BUILDKITE_BUILD_AUTHOR"
+  - commands: 
+    - "buildkite-agent artifact download dist/hello ./hello/hello --step build_app"
+    - "chmod +x ./hello/hello"
+    - "./hello/hello $$BUILDKITE_BUILD_AUTHOR"
 
 
 
