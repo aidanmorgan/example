@@ -7,8 +7,16 @@ steps:
     plugins:
       - docker#v5.12.0:
           image: "golang:1.18.0"
-  - block: "Continue?"
-  - commands: 
+  - label: "Prompt for user's name before executing"
+    key: "user_input"
+    input: "Prompt for details"
+    fields:
+    - text: "What shall I call you today?"
+      key: "my-name"
+  - label: "run_app"
+    depends_on: "user_input"
+    commands: 
     - "buildkite-agent artifact download hello/hello . --step build_app"
     - "chmod +x hello/hello"
-    - "./hello/hello $BUILDKITE_BUILD_AUTHOR"
+    - "NAME=$(buildkite-agent meta-data get my-name)"
+    - "./hello/hello $$NAME"
