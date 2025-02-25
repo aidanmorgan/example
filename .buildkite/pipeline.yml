@@ -1,8 +1,10 @@
 steps:
-  - label: "build_app" 
+  - label: "Build Application"
+    key: "build_app"
     commands:
       - "cd hello"
       - "go build"
+    # being able to set a working directory here would be good, scoped to the block?
     artifact_paths: "hello/hello"
     plugins:
       - docker#v5.12.0:
@@ -13,10 +15,14 @@ steps:
     fields:
     - text: "What shall I call you today?"
       key: "my-name"
-  - label: "run_app"
+  - label: "Run Application after User Input"
+    key: "run_app"
+    # having to explicitly set this is not intuitive, perhaps a configuration for "block_until_input: true on the input field?"    
     depends_on: "user_input"
     commands: 
+    # could this have a convention associated with it like BUILDKITE_INPUT_XXXX rather than an expicit call?
+    - "NAME=$(buildkite-agent meta-data get my-name)"
     - "buildkite-agent artifact download hello/hello . --step build_app"
     - "chmod +x hello/hello"
-    - "NAME=$(buildkite-agent meta-data get my-name)"
     - "./hello/hello $$NAME"
+
